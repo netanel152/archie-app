@@ -1,0 +1,284 @@
+// src/components/providers/LanguageProvider.tsx
+
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { User } from '@/entities/User'; // Corrected import path with alias
+
+
+// Define the shape of all possible translation keys, based on the 'en' object.
+// This gives us autocomplete and prevents typos when using the t() function.
+type TranslationKey = keyof typeof translations.en;
+
+type TranslationOptions = {
+    [key: string]: string | number;
+};
+
+// Define the "contract" for our context, so other components know what to expect.
+type LanguageContextType = {
+    t: (key: TranslationKey, options?: TranslationOptions) => string;
+    language: 'en' | 'he';
+    setLanguage: (lang: 'en' | 'he') => Promise<void>;
+};
+
+// Define the props for the LanguageProvider component itself.
+type LanguageProviderProps = {
+    children: ReactNode;
+};
+
+// --- End of Type Definitions ---
+
+const translations = {
+    en: {
+        "dashboard_title": "My Items",
+        "dashboard_subtitle": "{{count}} item in your digital vault",
+        "dashboard_subtitle_plural": "{{count}} items in your digital vault",
+        "add_new_item": "Add New Item",
+        "search_placeholder": "Search items, stores, or categories...",
+        "sort_by": "Sort",
+        "filter_by": "Filter",
+        "sort_newest": "Purchase Date (Newest)",
+        "sort_oldest": "Purchase Date (Oldest)",
+        "sort_warranty": "Warranty (Expiring Soon)",
+        "sort_price_high": "Price (High to Low)",
+        "sort_price_low": "Price (Low to High)",
+        "filter_all_items": "All Items",
+        "no_items_title": "No items yet",
+        "no_items_subtitle": "Start building your digital vault by adding your first receipt",
+        "add_first_item": "Add Your First Item",
+        "no_items_found_title": "No items found",
+        "no_items_found_subtitle": "Try adjusting your search or filter criteria",
+        "upload_title": "Add New Item",
+        "upload_subtitle": "Upload a receipt to add to your digital vault",
+        "back_button": "Back",
+        "item_detail_title": "Item Details",
+        "warranty_info_title": "Warranty Information",
+        "personal_notes_title": "Personal Notes",
+        "documents_title": "Documents",
+        "view_receipt": "View Original Receipt",
+        "download_manual": "Download User Manual",
+        "edit": "Edit",
+        "save": "Save",
+        "cancel": "Cancel",
+        "settings_title": "Settings",
+        "language": "Language",
+        "market_value_title": "Market Value",
+        "get_market_value": "Estimate Resale Value",
+        "estimating": "Estimating...",
+        "estimated_value": "Estimated Value",
+        "dashboard_nav": "Dashboard",
+        "insights_nav": "Insights",
+        "settings_nav": "Settings",
+        "insights_title": "Vault Insights",
+        "insights_subtitle": "An analytical overview of your assets",
+        "total_value": "Total Vault Value",
+        "spending_by_category": "Spending by Category",
+        "upcoming_expirations": "Upcoming Expirations",
+        "no_expirations": "No warranties expiring in the next 60 days.",
+        "expires_in_days": "Expires in {{count}} days",
+        "select_items": "Select Items",
+        "export": "Export",
+        "camera_capture_title": "Capture Receipt",
+        "take_photo_title": "Take a Photo",
+        "take_photo_subtitle": "Position your receipt clearly in frame",
+        "open_camera": "Open Camera",
+        "upload_from_library_title": "Upload from Library",
+        "upload_from_library_subtitle": "Select an existing photo from your device",
+        "choose_photo": "Choose Photo",
+        "or_divider": "or",
+        "retake": "Retake",
+        "use_image": "Use This Image",
+        "processing_image": "Processing...",
+        "success_added": "Success! Your item has been added.",
+        "redirecting": "Redirecting...",
+        "error_upload_failed": "Failed to process receipt. Please try again.",
+        "email_integration_title": "Email Integration",
+        "email_integration_subtitle": "Forward email receipts to your personal Archie address for automatic processing.",
+        "copy": "Copy",
+        "copied": "Copied",
+        "pro_tips_title": "Pro Tips",
+        "tip1": "• Ensure receipts are clearly visible and well-lit",
+        "tip2": "• Include the entire receipt in the photo",
+        "tip3": "• Avoid shadows and glare for best results",
+        "tip4": "• You can always edit details manually after upload",
+        "store": "Store",
+        "purchase_date": "Purchase Date",
+        "price": "Price",
+        "category": "Category",
+        "warranty_expired": "Expired",
+        "warranty_expires_soon": "Expires Soon",
+        "warranty_active": "Active",
+        "warranty_days_left": "{{count}} days left",
+        "no_notes": "No notes added yet",
+        "item_not_found": "Item not found",
+        "expires_on": "Expires on",
+        "warranty_period": "Warranty Period",
+        "value_at_risk": "Value at Risk",
+        "filter_by_time": "Filter by time",
+        "all_time": "All Time",
+        "this_year": "This Year",
+        "last_year": "Last Year"
+    },
+    he: {
+        "dashboard_title": "הפריטים שלי",
+        "dashboard_subtitle": "פריט {{count}} בכספת הדיגיטלית שלך",
+        "dashboard_subtitle_plural": "{{count}} פריטים בכספת הדיגיטלית שלך",
+        "add_new_item": "הוספת פריט חדש",
+        "search_placeholder": "חיפוש פריטים, חנויות, או קטגוריות...",
+        "sort_by": "מיון",
+        "filter_by": "סינון",
+        "sort_newest": "תאריך רכישה (החדש ביותר)",
+        "sort_oldest": "תאריך רכישה (הישן ביותר)",
+        "sort_warranty": "אחריות (פגה בקרוב)",
+        "sort_price_high": "מחיר (מהגבוה לנמוך)",
+        "sort_price_low": "מחיר (מהנמוך לגבוה)",
+        "filter_all_items": "כל הפריטים",
+        "no_items_title": "אין עדיין פריטים",
+        "no_items_subtitle": "התחילו לבנות את הכספת הדיגיטלית שלכם על ידי הוספת הקבלה הראשונה",
+        "add_first_item": "הוסף פריט ראשון",
+        "no_items_found_title": "לא נמצאו פריטים",
+        "no_items_found_subtitle": "נסו לשנות את תנאי החיפוש או הסינון",
+        "upload_title": "הוספת פריט חדש",
+        "upload_subtitle": "העלה קבלה כדי להוסיף לכספת הדיגיטלית שלך",
+        "back_button": "חזור",
+        "item_detail_title": "פרטי הפריט",
+        "warranty_info_title": "מידע אחריות",
+        "personal_notes_title": "הערות אישיות",
+        "documents_title": "מסמכים",
+        "view_receipt": "צפה בקבלה המקורית",
+        "download_manual": "הורד מדריך למשתמש",
+        "edit": "עריכה",
+        "save": "שמור",
+        "cancel": "ביטול",
+        "settings_title": "הגדרות",
+        "language": "שפה",
+        "market_value_title": "שווי שוק",
+        "get_market_value": "הערכת שווי למכירה חוזרת",
+        "estimating": "מעריך...",
+        "estimated_value": "שווי מוערך",
+        "dashboard_nav": "ראשי",
+        "insights_nav": "תובנות",
+        "settings_nav": "הגדרות",
+        "insights_title": "תובנות הכספת",
+        "insights_subtitle": "מבט אנליטי על הנכסים שלך",
+        "total_value": "שווי כספת כולל",
+        "spending_by_category": "הוצאות לפי קטגוריה",
+        "upcoming_expirations": "אחריות שתפוג בקרוב",
+        "no_expirations": "אין אחריות שתפוג ב-60 הימים הקרובים.",
+        "expires_in_days": "פג תוקף בעוד {{count}} ימים",
+        "select_items": "בחר פריטים",
+        "export": "ייצוא",
+        "camera_capture_title": "צילום קבלה",
+        "take_photo_title": "צלם תמונה",
+        "take_photo_subtitle": "מקם את הקבלה שלך בצורה ברורה",
+        "open_camera": "פתח מצלמה",
+        "upload_from_library_title": "העלאה מהספרייה",
+        "upload_from_library_subtitle": "בחר תמונה קיימת מהמכשיר שלך",
+        "choose_photo": "בחר תמונה",
+        "or_divider": "או",
+        "retake": "צלם שוב",
+        "use_image": "השתמש בתמונה זו",
+        "processing_image": "מעבד...",
+        "success_added": "הצלחה! הפריט שלך נוסף.",
+        "redirecting": "מעביר...",
+        "error_upload_failed": "עיבוד הקבלה נכשל. אנא נסה שוב.",
+        "email_integration_title": "שליחה באימייל",
+        "email_integration_subtitle": "שלח קבלות באימייל לכתובת האישית שלך בארצ'י לעיבוד אוטומטי.",
+        "copy": "העתק",
+        "copied": "הועתק",
+        "pro_tips_title": "טיפים",
+        "tip1": "• ודא שהקבלות נראות בבירור ומוארות היטב",
+        "tip2": "• כלול את כל הקבלה בתמונה",
+        "tip3": "• הימנע מצללים ובוהק לקבלת התוצאות הטובות ביותר",
+        "tip4": "• תמיד תוכל לערוך פרטים ידנית לאחר ההעלאה",
+        "store": "חנות",
+        "purchase_date": "תאריך רכישה",
+        "price": "מחיר",
+        "category": "קטגוריה",
+        "warranty_expired": "פג תוקף",
+        "warranty_expires_soon": "פג תוקף בקרוב",
+        "warranty_active": "בתוקף",
+        "warranty_days_left": "נשארו {{count}} ימים",
+        "no_notes": "עדיין לא נוספו הערות",
+        "item_not_found": "הפריט לא נמצא",
+        "expires_on": "פג תוקף בתאריך",
+        "warranty_period": "תקופת אחריות",
+        "value_at_risk": "ערך בסיכון",
+        "filter_by_time": "סנן לפי זמן",
+        "all_time": "כל הזמנים",
+        "this_year": "השנה",
+        "last_year": "שנה שעברה"
+    }
+};
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+export function LanguageProvider({ children }: LanguageProviderProps) {
+    const [language, setLanguage] = useState<'en' | 'he'>('en');
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+        const fetchUserLanguage = async () => {
+            try {
+                const user = await User.me();
+                const pref = user.language_preference || navigator.language.split('-')[0];
+                setLanguage(pref === 'he' ? 'he' : 'en');
+            } catch (e) {
+                const browserLang = navigator.language.split('-')[0];
+                setLanguage(browserLang === 'he' ? 'he' : 'en');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUserLanguage();
+    }, []);
+    
+    useEffect(() => {
+        document.documentElement.lang = language;
+        document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
+    }, [language]);
+
+    const setAppLanguage = async (lang: 'en' | 'he'): Promise<void> => {
+        setLanguage(lang);
+        try {
+            await User.updateMyUserData({ language_preference: lang });
+        } catch (e) {
+            console.warn("Could not save language preference for guest user.");
+        }
+    };
+
+    const t = (key: TranslationKey, options?: TranslationOptions): string => {
+        let translation = translations[language][key] || translations['en'][key] || key;
+        if (options) {
+            Object.keys(options).forEach(k => {
+                const regex = new RegExp(`{{${k}}}`, 'g');
+                translation = translation.replace(regex, String(options[k]));
+            });
+        }
+        return translation;
+    };
+
+    if (loading) {
+        return <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900" />
+        </div>;
+    }
+
+    const contextValue: LanguageContextType = {
+        t,
+        language,
+        setLanguage: setAppLanguage
+    };
+
+    return (
+        <LanguageContext.Provider value={contextValue}>
+            {children}
+        </LanguageContext.Provider>
+    );
+}
+
+export const useTranslation = (): LanguageContextType => {
+    const context = useContext(LanguageContext);
+    if (!context) {
+        throw new Error('useTranslation must be used within a LanguageProvider');
+    }
+    return context;
+};
