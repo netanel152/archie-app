@@ -1,7 +1,8 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./components/providers/ThemeProvider.tsx";
 
 // Import your main components and pages
-import { LanguageProvider } from "./components/providers/LanguageProvider";
 import Layout from "./Layout";
 import Dashboard from "./pages/Dashboard";
 import Upload from "./pages/Upload";
@@ -12,7 +13,7 @@ import Insights from "./pages/Insights";
 const App = () => {
   return (
     <BrowserRouter>
-      <LanguageProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -22,9 +23,10 @@ const App = () => {
             <Route path="/insights" element={<Insights />} />
           </Routes>
         </Layout>
-      </LanguageProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 };
 
 export default App;
+

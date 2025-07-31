@@ -1,10 +1,14 @@
+
+
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { Home, BarChart2, Settings, Shield } from "lucide-react";
-import { LanguageProvider, useTranslation } from './components/providers/LanguageProvider';
+import { useTranslation } from './components/providers/LanguageContext';
+import { LanguageProvider } from "./components/providers/LanguageProvider";
+import { ThemeSwitcher } from "./components/ThemeSwitcher";
 
-function AppLayout({ children }) {
-  const { t, language } = useTranslation();
+function AppLayout({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const location = useLocation();
 
   const navItems = [
@@ -14,89 +18,55 @@ function AppLayout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-          
-          :root {
-            --primary-navy: #1e293b;
-            --accent-gold: #f59e0b;
-            --text-primary: #0f172a;
-            --text-secondary: #64748b;
-            --surface-white: #ffffff;
-            --surface-gray: #f8fafc;
-            --border-light: #e2e8f0;
-            --shadow-soft: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-          }
-          
-          * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          }
-          
-          body {
-            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
-
-          .lucide-rtl {
-             transform: scaleX(-1);
-          }
-        `}
-      </style>
-      
-      <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to={createPageUrl("Dashboard")} className="flex items-center space-x-3 rtl:space-x-reverse">
-              <div className="w-10 h-10 bg-gradient-to-br from-slate-800 to-slate-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Link to={createPageUrl("Dashboard")} className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-800 dark:bg-gray-700 rounded-lg flex items-center justify-center">
                 <Shield className="w-6 h-6 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 tracking-tight">Archie</h1>
-                <p className="text-xs text-slate-500 font-medium">Digital Vault</p>
-              </div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Archie</h1>
             </Link>
             
-            <nav className="hidden md:flex items-center space-x-1 rtl:space-x-reverse">
+            <nav className="hidden md:flex items-center space-x-2">
               {navItems.map(item => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
                     location.pathname === createPageUrl(item.page)
-                      ? "bg-slate-100 text-slate-900"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
                 </Link>
               ))}
+              <ThemeSwitcher />
             </nav>
           </div>
         </div>
       </header>
 
-      <main className="flex-1">
+      <main className="flex-1 py-8">
         {children}
       </main>
 
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-slate-200 z-50">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
         <div className="flex items-center justify-around py-2">
           {navItems.map(item => (
             <Link
               key={item.page}
               to={createPageUrl(item.page)}
-              className={`flex flex-col items-center px-3 py-2 rounded-xl transition-all duration-200 ${
+              className={`flex flex-col items-center px-3 py-1 rounded-lg transition-colors w-full ${
                 location.pathname === createPageUrl(item.page)
-                  ? "text-slate-900"
-                  : "text-slate-500"
+                  ? "text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 dark:text-gray-400"
               }`}
             >
-              <item.icon className="w-5 h-5 mb-1" />
+              <item.icon className="w-6 h-6" />
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           ))}
@@ -106,10 +76,11 @@ function AppLayout({ children }) {
   );
 }
 
-export default function LayoutWrapper({ children }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <LanguageProvider>
             <AppLayout>{children}</AppLayout>
         </LanguageProvider>
     )
 }
+

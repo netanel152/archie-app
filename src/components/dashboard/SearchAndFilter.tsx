@@ -1,4 +1,4 @@
-import React from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,7 +9,16 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { Search, Filter, ArrowUpDown } from "lucide-react";
-import { useTranslation } from "../providers/LanguageProvider";
+import { useTranslation } from "../providers/LanguageContext";
+
+interface SearchAndFilterProps {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  sortBy: string;
+  setSortBy: (sort: string) => void;
+  categoryFilter: string;
+  setCategoryFilter: (filter: string) => void;
+}
 
 export default function SearchAndFilter({ 
   searchTerm, 
@@ -18,7 +27,7 @@ export default function SearchAndFilter({
   setSortBy,
   categoryFilter,
   setCategoryFilter 
-}) {
+}: SearchAndFilterProps) {
   const { t } = useTranslation();
 
   const sortOptions = [
@@ -32,22 +41,22 @@ export default function SearchAndFilter({
   const categories = ["Electronics", "Appliances", "Furniture", "Clothing", "Tools", "Other"];
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-slate-200 shadow-sm">
+    <div className="bg-white rounded-lg p-4 border border-gray-200">
       <div className="flex flex-col md:flex-row gap-4">
         <div className="flex-1 relative">
-          <Search className="absolute left-3 rtl:right-3 rtl:left-auto top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
           <Input
             placeholder={t('search_placeholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="ps-10 rtl:pe-10 rtl:ps-4 bg-white/80 border-slate-200 focus:border-slate-400 rounded-xl"
+            className="pl-10 bg-gray-50 border-gray-300 focus:border-blue-500 rounded-lg"
           />
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="bg-white/80 border-slate-200 hover:bg-slate-50 rounded-xl">
-                <ArrowUpDown className="w-4 h-4 me-2" />
+              <Button variant="outline" className="bg-white border-gray-300 hover:bg-gray-50 rounded-lg w-full md:w-auto">
+                <ArrowUpDown className="w-4 h-4 mr-2" />
                 {t('sort_by')}
               </Button>
             </DropdownMenuTrigger>
@@ -56,7 +65,7 @@ export default function SearchAndFilter({
                 <DropdownMenuItem
                   key={option.value}
                   onClick={() => setSortBy(option.value)}
-                  className={sortBy === option.value ? "bg-slate-100" : ""}
+                  className={sortBy === option.value ? "bg-gray-100" : ""}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -65,8 +74,8 @@ export default function SearchAndFilter({
           </DropdownMenu>
 
           <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-            <SelectTrigger className="w-40 bg-white/80 border-slate-200 hover:bg-slate-50 rounded-xl">
-              <Filter className="w-4 h-4 me-2" />
+            <SelectTrigger className="w-full md:w-48 bg-white border-gray-300 hover:bg-gray-50 rounded-lg">
+              <Filter className="w-4 h-4 mr-2" />
               <SelectValue placeholder={t('filter_by')} />
             </SelectTrigger>
             <SelectContent>

@@ -1,19 +1,29 @@
-import React, { useRef, useState } from "react";
+
+import { useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Camera, Upload, RotateCcw, Check } from "lucide-react";
 
-export default function CameraCapture({ onImageCapture }) {
-  const [capturedImage, setCapturedImage] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const fileInputRef = useRef(null);
+interface CameraCaptureProps {
+  onImageCapture: (file: File) => void;
+  disabled: boolean;
+}
 
-  const handleFileUpload = (event) => {
+export default function CameraCapture({ onImageCapture, disabled }: CameraCaptureProps) {
+  const [capturedImage, setCapturedImage] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files) return;
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setCapturedImage(e.target.result);
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        if (e.target && typeof e.target.result === 'string') {
+          setCapturedImage(e.target.result);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -41,9 +51,9 @@ export default function CameraCapture({ onImageCapture }) {
   };
 
   return (
-    <Card className="bg-white/90 backdrop-blur-sm border border-slate-200 shadow-xl">
+    <Card className="bg-white border border-gray-200 rounded-lg">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-900">
+        <CardTitle className="flex items-center gap-2 text-gray-800">
           <Camera className="w-5 h-5" />
           Capture Receipt
         </CardTitle>
@@ -51,68 +61,45 @@ export default function CameraCapture({ onImageCapture }) {
       <CardContent className="space-y-6">
         {!capturedImage ? (
           <div className="space-y-4">
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-400 transition-colors">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-                <Camera className="w-8 h-8 text-slate-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Take a Photo
-              </h3>
-              <p className="text-slate-600 mb-4">
-                Position your receipt clearly in frame
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                className="bg-slate-800 hover:bg-slate-700 text-white rounded-xl"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Open Camera
-              </Button>
-            </div>
+            <UploadBox
+              icon={Camera}
+              title="Take a Photo"
+              description="Position your receipt clearly in frame"
+              buttonText="Open Camera"
+              onButtonClick={() => fileInputRef.current?.click()}
+            />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
             
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-300" />
+                <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-slate-500">or</span>
+                <span className="bg-white px-2 text-gray-500">or</span>
               </div>
             </div>
             
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-400 transition-colors">
-              <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
-                <Upload className="w-8 h-8 text-slate-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
-                Upload from Library
-              </h3>
-              <p className="text-slate-600 mb-4">
-                Select an existing photo from your device
-              </p>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="upload-input"
-              />
-              <Button
-                onClick={() => document.getElementById('upload-input')?.click()}
-                variant="outline"
-                className="border-slate-300 hover:bg-slate-50 rounded-xl"
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Choose Photo
-              </Button>
-            </div>
+            <UploadBox
+              icon={Upload}
+              title="Upload from Library"
+              description="Select an existing photo from your device"
+              buttonText="Choose Photo"
+              onButtonClick={() => document.getElementById('upload-input')?.click()}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+              id="upload-input"
+            />
           </div>
         ) : (
           <div className="space-y-4">
@@ -120,7 +107,7 @@ export default function CameraCapture({ onImageCapture }) {
               <img
                 src={capturedImage}
                 alt="Captured receipt"
-                className="w-full max-h-96 object-contain rounded-xl border border-slate-200"
+                className="w-full max-h-96 object-contain rounded-lg border border-gray-200"
               />
             </div>
             
@@ -128,15 +115,15 @@ export default function CameraCapture({ onImageCapture }) {
               <Button
                 onClick={handleRetake}
                 variant="outline"
-                className="flex-1 border-slate-300 hover:bg-slate-50 rounded-xl"
+                className="flex-1 border-gray-300 hover:bg-gray-50 rounded-lg"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Retake
               </Button>
               <Button
                 onClick={handleUseImage}
-                disabled={isProcessing}
-                className="flex-1 bg-amber-500 hover:bg-amber-600 text-white rounded-xl"
+                disabled={isProcessing || disabled}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
               >
                 {isProcessing ? (
                   <>
@@ -157,3 +144,25 @@ export default function CameraCapture({ onImageCapture }) {
     </Card>
   );
 }
+
+const UploadBox = ({ icon: Icon, title, description, buttonText, onButtonClick }: any) => (
+  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+    <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+      <Icon className="w-8 h-8 text-gray-600" />
+    </div>
+    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+      {title}
+    </h3>
+    <p className="text-gray-600 mb-4">
+      {description}
+    </p>
+    <Button
+      onClick={onButtonClick}
+      variant="outline"
+      className="border-gray-300 hover:bg-gray-50 rounded-lg"
+    >
+      <Icon className="w-4 h-4 mr-2" />
+      {buttonText}
+    </Button>
+  </div>
+);
