@@ -1,17 +1,20 @@
-export const UploadFile = async (data: any) => {
-  console.log("Uploading file:", data);
-  return { file_url: "https://example.com/receipt.jpg" };
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { auth, storage } from '../../infrastructure/integrations/firebase';
+
+export const UploadFile = async ({ file }: { file: File }): Promise<{ file_url: string }> => {
+  const userId = auth.currentUser?.uid;
+  if (!userId) throw new Error("User not authenticated for file upload.");
+
+  const storageRef = ref(storage, `receipts/${userId}/${Date.now()}-${file.name}`);
+  const snapshot = await uploadBytes(storageRef, file);
+  return { file_url: await getDownloadURL(snapshot.ref) };
 };
 
-export const InvokeLLM = async (data: any) => {
-  console.log("Invoking LLM with:", data);
-  return {
-    product_name: "Sample Product",
-    product_model: "ABC-123",
-    store_name: "Sample Store",
-    purchase_date: "2025-07-31",
-    total_price: 123.45,
-    currency: "USD",
-    warranty_period: "1 year",
-  };
+export const InvokeLLM = async (data: { prompt: string, file_urls: string[] }): Promise<any> => {
+  const functions = getFunctions();
+  const processReceipt = httpsCallable(functions, 'processReceipt'); // Name of our backend function
+
+  const result = await processReceipt({ fileUrl: data.file_urls[0] });
+  return result.data;
 };
