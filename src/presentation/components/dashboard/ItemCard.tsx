@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Calendar, MapPin, ShieldCheck, ShieldAlert, ShieldX, CheckSquare, Square } from "lucide-react";
+import { Calendar, MapPin, ShieldCheck, ShieldAlert, ShieldX, CheckSquare, Square, Loader2 } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useTranslation } from "../providers/LanguageContext";
 import { he } from "date-fns/locale";
@@ -20,6 +20,36 @@ interface ItemCardProps {
 export default function ItemCard({ item, onClick, selectMode, isSelected }: ItemCardProps) {
   const { t, language } = useTranslation();
   const dateLocale = language === 'he' ? he : undefined;
+
+  if (item.processing_status === 'processing' || item.processing_status === 'failed') {
+    const isFailed = item.processing_status === 'failed';
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.2 }}
+      >
+        <Card className={`bg-white border rounded-lg overflow-hidden ${isFailed ? 'border-red-300' : 'border-gray-200'}`}>
+          <CardContent className="p-5">
+            <div className={`flex items-center gap-2 ${isFailed ? 'text-red-600' : 'text-gray-500'}`}>
+              {isFailed ? <ShieldX className="w-4 h-4" /> : <Loader2 className="w-4 h-4 animate-spin" />}
+              <h3 className="font-semibold truncate">
+                {item.product_name}
+              </h3>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">
+              {isFailed ? "Please check the item details to resolve." : "We're analyzing your receipt..."}
+            </p>
+            <div className="mt-4 space-y-2">
+              <div className="h-3 bg-gray-200 rounded w-1/3"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
 
   const getWarrantyStatus = () => {
     if (!item.warranty_expiration_date) return null;

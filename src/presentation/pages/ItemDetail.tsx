@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useItemStore } from "../../application/state/itemStore";
+import { useNavigate } from "react-router-dom";
 import { Item, type ItemData } from "../../domain/entities/Item";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
@@ -39,6 +41,8 @@ import {
 
 export default function ItemDetail() {
   const { t, language } = useTranslation();
+  const navigate = useNavigate();
+  const deleteItemFromStore = useItemStore((state) => state.deleteItem);
   const [item, setItem] = useState<ItemData | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingNotes, setEditingNotes] = useState(false);
@@ -166,9 +170,10 @@ export default function ItemDetail() {
     if (!item?.id) return;
     setIsDeleting(true);
     try {
-      await Item.delete(item.id);
-      // Navigate back to dashboard after deletion
-      window.location.href = createPageUrl("");
+      // Call the store function, which handles both backend and local state
+      await deleteItemFromStore(item.id);
+      // Use navigate for a smooth transition without a page reload
+      navigate(createPageUrl(""));
     } catch (error) {
       console.error("Failed to delete item:", error);
       // Here you would show a toast notification to the user
@@ -368,31 +373,31 @@ export default function ItemDetail() {
               )}
             </CardContent>
           </Card>
-                <div className="flex justify-end mb-4">
-        <AlertDialog>
-          <AlertDialogTrigger >
-            <Button variant="destructive">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete Item
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDescription>
-                This action cannot be undone. This will permanently delete this item
-                and remove its data from our servers.
-              </AlertDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Continue"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
+          <div className="flex justify-end mb-4">
+            <AlertDialog>
+              <AlertDialogTrigger >
+                <Button variant="destructive">
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Item
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDescription>
+                    This action cannot be undone. This will permanently delete this item
+                    and remove its data from our servers.
+                  </AlertDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Continue"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </div>
     </div>

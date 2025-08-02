@@ -53,23 +53,37 @@ export default function Upload() {
     setSuccess(false);
 
     let file_url = '';
-    let itemId: string | null = null; // Changed from placeholderItemId for clarity
+    let itemId: string | null = null;
 
     try {
+      // Step 1: Upload the file and create a placeholder item immediately.
       file_url = (await UploadFile({ file })).file_url;
-
       itemId = await Item.create({
         product_name: "Processing Receipt...",
         receipt_image_url: file_url,
         processing_status: "processing",
       });
 
-      const prompt = `Analyze the receipt image. Extract data according to the JSON schema. The receipt may be in Hebrew or English. Infer the category from the product name. If a field is not found, return null.`;
+      // Step 2: Navigate away immediately to provide the optimistic UI experience.
+      navigate(createPageUrl(""));
 
-      const extractedData = await InvokeLLM({
-        prompt: prompt,
-        file_urls: [file_url],
-        response_json_schema: {
+      // Step 3: Start the AI processing in the background (fire-and-forget).
+      // We don't `await` this promise chain on the upload page.
+      processItemInBackground(itemId, file_url);
+
+    } catch (err) {
+      // This catch block now handles errors from the initial upload/create steps.
+      setError(t('error_upload_failed'));
+      console.error("Initial upload error:", err);
+      setProcessing(false); // Make sure to stop processing indicator on initial error
+    }
+  };
+
+  const processItemInBackground = async (itemId: string, fileUrl: string) => {
+    try {
+      const result = await InvokeLLM({
+        fileUrl: fileUrl,
+        schema: {
           type: "object",
           properties: {
             product_name: { type: "string" },
@@ -81,33 +95,27 @@ export default function Upload() {
             category: { type: "string", enum: ["Electronics", "Appliances", "Furniture", "Clothing", "Tools", "Other"] }
           }
         }
-      }) as any;
+      });
+
+      const extractedData = result.data;
 
       const warranty_expiration_date = (extractedData.warranty_period && extractedData.purchase_date)
         ? calculateWarrantyExpiration(extractedData.purchase_date, extractedData.warranty_period)
         : null;
 
-      // The Item.update function needs the ID of the item to update.
-      // Since Item.create now returns the ID, this will work.
       await Item.update(itemId, {
         product_name: extractedData.product_name || "Untitled Item",
-        store_name: extractedData.store_name || undefined,
-        purchase_date: extractedData.purchase_date || undefined,
-        total_price: extractedData.total_price || undefined,
-        currency: extractedData.currency || undefined,
-        warranty_period: extractedData.warranty_period || undefined,
-        // FIX: Ensure the value is string | undefined, not string | null
+        store_name: extractedData.store_name,
+        purchase_date: extractedData.purchase_date,
+        total_price: extractedData.total_price,
+        currency: extractedData.currency,
+        warranty_period: extractedData.warranty_period,
         warranty_expiration_date: warranty_expiration_date || undefined,
         category: extractedData.category || "Other",
         processing_status: "completed"
       });
-
-      setSuccess(true);
-      setTimeout(() => navigate(createPageUrl("")), 1500); // Navigate to dashboard
-
     } catch (err) {
-      setError(t('error_upload_failed'));
-      console.error("Upload error:", err);
+      console.error("Background processing error:", err);
       if (itemId) {
         await Item.update(itemId, {
           product_name: "Processing Failed",
@@ -115,10 +123,9 @@ export default function Upload() {
           processing_status: "failed",
         });
       }
-    } finally {
-      setProcessing(false);
     }
   };
+
 
   const copyEmailToClipboard = () => {
     navigator.clipboard.writeText(userEmail);

@@ -40,9 +40,7 @@ const list = async (sort: string = "created_date"): Promise<ItemData[]> => {
   const userId = getCurrentUserId();
   dbLogger.info({ userId, sort }, "Fetching item list.");
   const itemsCollectionRef = collection(db, `users/${userId}/items`);
-  const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
-  const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
-  const q = query(itemsCollectionRef, orderBy(sortField, sortDirection));
+  const q = query(itemsCollectionRef, orderBy("created_date", "desc"));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ItemData));
 };
