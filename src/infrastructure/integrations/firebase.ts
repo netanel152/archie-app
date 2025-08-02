@@ -1,18 +1,16 @@
-// src/infrastructure/firebase.ts
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getFunctions } from "firebase/functions";
 
-// IMPORTANT: Replace this with your project's actual Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCtrY7JcTovnrIceE5dLO6HffJWa9nCTSg",
-  authDomain: "archie-app-aa361.firebaseapp.com",
-  projectId: "archie-app-aa361",
-  storageBucket: "archie-app-aa361.firebasestorage.app",
-  messagingSenderId: "282995815102",
-  appId: "1:282995815102:web:08a9fdb2098cad17a064ef"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
