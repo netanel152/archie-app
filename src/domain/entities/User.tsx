@@ -17,19 +17,13 @@ const me = (): Promise<UserData> => {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const data = userDoc.data();
-
-          // --- FIX IS HERE ---
-          // We explicitly build the UserData object to ensure type safety.
           const userData: UserData = {
             id: user.uid,
             email: data.email || null,
             language_preference: data.language_preference === 'he' ? 'he' : 'en',
           };
           resolve(userData);
-          // --- END OF FIX ---
-
         } else {
-          // If the user exists in Auth but not in Firestore, create a doc for them
           const newUser: Omit<UserData, 'id'> = {
             email: user.email,
             language_preference: 'en'
@@ -38,7 +32,7 @@ const me = (): Promise<UserData> => {
           resolve({ id: user.uid, ...newUser });
         }
       } else {
-        reject(new Error("User not logged in"));
+        reject(new Error("User not authenticated"));
       }
     });
   });

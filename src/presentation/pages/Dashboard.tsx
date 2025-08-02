@@ -1,19 +1,22 @@
-
-import { useState, useEffect, useCallback } from "react";
-import { Item, type ItemData } from "../../domain/entities/Item";
+import { useState, useEffect } from "react";
+import { type ItemData } from "../../domain/entities/Item";
+import { useItemStore } from '../../application/state/itemStore';
 import { Button } from "../components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../../utils";
-import { Plus, Package, Loader2, ListChecks, X, RefreshCw } from "lucide-react";
+import { Plus, Package, ListChecks, X, RefreshCw } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { useTranslation } from "../components/providers/LanguageContext";
 import ItemCard from "../components/dashboard/ItemCard";
 import SearchAndFilter from "../components/dashboard/SearchAndFilter";
+import ItemCardSkeleton from "../components/dashboard/ItemCardSkeleton";
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const [items, setItems] = useState<ItemData[]>([]);
-  const [loading, setLoading] = useState(true);
+  // State from our Zustand store. This is the single source of truth for items and loading status.
+  const { items, loading, fetchItems } = useItemStore();
+
+  // Local UI state for the Dashboard component itself.
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("purchase_date_desc");
@@ -21,26 +24,16 @@ export default function Dashboard() {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedItems, setSelectedItems] = useState(new Set<string>());
 
-  const loadItems = useCallback(async () => {
-    if (!isRefreshing) setLoading(true);
-    try {
-      const fetchedItems = await Item.list("-created_date");
-      setItems(fetchedItems);
-    } catch (error) {
-      console.error("Error loading items:", error);
-    } finally {
-      setLoading(false);
-      setIsRefreshing(false);
-    }
-  }, [isRefreshing]);
-
+  // Fetch items when the component first mounts.
   useEffect(() => {
-    loadItems();
-  }, [loadItems]);
+    fetchItems();
+  }, [fetchItems]);
 
-  const handleRefresh = () => {
+  // Handle the refresh action.
+  const handleRefresh = async () => {
     setIsRefreshing(true);
-    loadItems();
+    await fetchItems(); // Re-fetch items using the store's function
+    setIsRefreshing(false);
   };
 
   const handleItemClick = (item: ItemData) => {
@@ -57,13 +50,15 @@ export default function Dashboard() {
     }
   };
 
+  // Filtering and sorting logic remains the same, but now it uses the `items` from the store.
   const filteredAndSortedItems = items
     .filter((item: ItemData) => {
+      const lowerSearchTerm = searchTerm.toLowerCase();
       const matchesSearch =
         !searchTerm ||
-        item.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.store_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.category?.toLowerCase().includes(searchTerm.toLowerCase());
+        item.product_name?.toLowerCase().includes(lowerSearchTerm) ||
+        item.store_name?.toLowerCase().includes(lowerSearchTerm) ||
+        item.category?.toLowerCase().includes(lowerSearchTerm);
 
       const matchesCategory =
         categoryFilter === "all" || item.category === categoryFilter;
@@ -96,24 +91,31 @@ export default function Dashboard() {
       }
     });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-500 dark:text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400">{t("processing_image")}</p>
-        </div>
-      </div>
-    );
-  }
-
   const toggleSelectMode = () => {
     setSelectMode(!selectMode);
     setSelectedItems(new Set());
   };
 
+  // The loading state now uses the skeleton component for a better UX.
+  if (loading && !isRefreshing) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <div className="h-9 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-2"></div>
+            <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
+          </div>
+        </div>
+        <div className="mb-8 h-24 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => <ItemCardSkeleton key={i} />)}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
@@ -130,7 +132,7 @@ export default function Dashboard() {
             variant="outline"
             onClick={handleRefresh}
             className="rounded-lg"
-            disabled={isRefreshing}
+            disabled={isRefreshing || loading}
           >
             <RefreshCw
               className={`w-4 h-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}

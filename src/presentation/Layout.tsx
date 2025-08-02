@@ -1,29 +1,20 @@
 
 
-import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { Home, BarChart2, Settings, Shield, Plus } from "lucide-react";
 import { useTranslation } from './components/providers/LanguageContext';
 import { LanguageProvider } from "./components/providers/LanguageProvider";
-import ItemModal from "./components/dashboard/ItemModal";
-import { Button } from "./components/ui/button";
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
   const location = useLocation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navItems = [
     { page: "", icon: Home, label: t('dashboard_nav') },
     { page: "insights", icon: BarChart2, label: t('insights_nav') },
     { page: "settings", icon: Settings, label: t('settings_nav') },
   ];
-
-  const handleSaveItem = (newItem: { title: string; description: string }) => {
-    console.log("New item saved:", newItem);
-    // Here you would typically handle the form submission, e.g., by sending the data to a server.
-  };
 
 
   return (
@@ -52,10 +43,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
                   {item.label}
                 </Link>
               ))}
-              <Button onClick={() => setIsModalOpen(true)} className="ml-4">
-                <Plus className="w-5 h-5 mr-2" />
-                {t('add_new_item')}
-              </Button>
             </nav>
           </div>
         </div>
@@ -65,29 +52,6 @@ function AppLayout({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      <ItemModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveItem}
-      />
-
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 z-50">
-        <div className="flex items-center justify-around py-2">
-          {navItems.map(item => (
-            <Link
-              key={item.page}
-              to={createPageUrl(item.page)}
-              className={`flex flex-col items-center px-3 py-1 rounded-lg transition-colors w-full ${location.pathname === createPageUrl(item.page)
-                ? "text-blue-600 dark:text-blue-400"
-                : "text-gray-500 dark:text-gray-400"
-                }`}
-            >
-              <item.icon className="w-6 h-6" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </Link>
-          ))}
-        </div>
-      </nav>
     </div>
   );
 }

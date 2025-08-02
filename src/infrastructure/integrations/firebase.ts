@@ -7,12 +7,12 @@ import { getFunctions } from "firebase/functions";
 
 // IMPORTANT: Replace this with your project's actual Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCtrY7JcTovnrIceE5dLO6HffJWa9nCTSg",
+  authDomain: "archie-app-aa361.firebaseapp.com",
+  projectId: "archie-app-aa361",
+  storageBucket: "archie-app-aa361.firebasestorage.app",
+  messagingSenderId: "282995815102",
+  appId: "1:282995815102:web:08a9fdb2098cad17a064ef"
 };
 
 // Initialize Firebase

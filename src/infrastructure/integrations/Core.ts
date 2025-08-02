@@ -1,6 +1,13 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { getFunctions, httpsCallable } from "firebase/functions";
-import { auth, storage } from '../../infrastructure/integrations/firebase';
+import { httpsCallable } from "firebase/functions";
+import { auth, storage, functions } from './firebase';
+
+// Define a more specific type for the LLM invocation parameters
+interface InvokeLLMParams {
+  prompt: string;
+  file_urls: string[];
+  response_json_schema: object;
+}
 
 export const UploadFile = async ({ file }: { file: File }): Promise<{ file_url: string }> => {
   const userId = auth.currentUser?.uid;
@@ -11,10 +18,12 @@ export const UploadFile = async ({ file }: { file: File }): Promise<{ file_url: 
   return { file_url: await getDownloadURL(snapshot.ref) };
 };
 
-export const InvokeLLM = async (data: { prompt: string, file_urls: string[] }): Promise<any> => {
-  const functions = getFunctions();
-  const processReceipt = httpsCallable(functions, 'processReceipt'); // Name of our backend function
+export const InvokeLLM = async (data: InvokeLLMParams): Promise<any> => {
+  const processReceipt = httpsCallable(functions, 'processReceipt');
 
-  const result = await processReceipt({ fileUrl: data.file_urls[0] });
+  const result = await processReceipt({
+    fileUrl: data.file_urls[0],
+    schema: data.response_json_schema
+  });
   return result.data;
 };

@@ -1,3 +1,15 @@
+import { db, auth } from '../../infrastructure/integrations/firebase';
+import {
+  collection,
+  query,
+  getDocs,
+  addDoc,
+  doc,
+  updateDoc,
+  orderBy,
+  Timestamp,
+} from 'firebase/firestore';
+
 export interface ItemData {
   id: string;
   product_name: string;
@@ -13,52 +25,44 @@ export interface ItemData {
   manual_url?: string;
   user_notes?: string;
   processing_status: "processing" | "completed" | "failed";
-  market_value?: number;
-  market_value_last_updated?: string;
-  serial_number?: string;
-  condition?: "excellent" | "good" | "fair" | "poor";
-  tags?: string[];
-  is_archived?: boolean;
+  created_date?: Timestamp;
 }
 
-export class Item {
-  static list = async (sort?: string): Promise<ItemData[]> => {
-    console.log("Listing items with sort:", sort);
-    return [
-      {
-        id: "1",
-        product_name: "Example Item 1",
-        purchase_date: "2025-07-30",
-        total_price: 100,
-        currency: "USD",
-        category: "Electronics",
-        processing_status: "completed",
-      },
-      {
-        id: "2",
-        product_name: "Example Item 2",
-        purchase_date: "2025-07-29",
-        total_price: 200,
-        currency: "USD",
-        category: "Appliances",
-        processing_status: "completed",
-      },
-    ];
-  };
+const getCurrentUserId = () => {
+  const user = auth.currentUser;
+  if (!user) throw new Error("No user is currently signed in.");
+  return user.uid;
+};
 
-  static create = async (data: Partial<ItemData>): Promise<ItemData> => {
-    const newItem: ItemData = {
-      id: Math.random().toString(36).substring(7),
-      product_name: "Unknown Product",
-      processing_status: "processing",
-      ...data,
-    };
-    console.log("Creating item:", newItem);
-    return newItem;
-  };
+const list = async (sort: string = "created_date"): Promise<ItemData[]> => {
+  const userId = getCurrentUserId();
+  const itemsCollectionRef = collection(db, `users/${userId}/items`);
+  const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
+  const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
+  const q = query(itemsCollectionRef, orderBy(sortField, sortDirection));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ItemData));
+};
 
-  static update = async (id: string, data: Partial<ItemData>): Promise<void> => {
-    console.log(`Updating item ${id} with:`, data);
-    return;
-  };
-}
+// FIX: This function now correctly returns the ID of the new document.
+const create = async (data: Partial<Omit<ItemData, 'id'>>): Promise<string> => {
+  const userId = getCurrentUserId();
+  const itemsCollectionRef = collection(db, `users/${userId}/items`);
+  const docRef = await addDoc(itemsCollectionRef, {
+    ...data,
+    created_date: Timestamp.now(),
+  });
+  return docRef.id; // Return the new document's ID
+};
+
+const update = async (id: string, data: Partial<ItemData>): Promise<void> => {
+  const userId = getCurrentUserId();
+  const itemDocRef = doc(db, `users/${userId}/items`, id);
+  await updateDoc(itemDocRef, data);
+};
+
+export const Item = {
+  list,
+  create,
+  update,
+};
