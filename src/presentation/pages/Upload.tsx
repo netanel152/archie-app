@@ -10,19 +10,18 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "../../utils";
 import { motion } from "framer-motion";
 import { useTranslation } from "../components/providers/LanguageContext";
-import { useUser } from "../components/providers/UserProvider"; // Import the useUser hook
+import { useUser } from "../components/providers/UserProvider";
 import CameraCapture from "../components/upload/CameraCapture";
 
 export default function Upload() {
   const { t, language } = useTranslation();
-  const { user } = useUser(); // Get the logged-in user's data
+  const { user } = useUser();
   const navigate = useNavigate();
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailCopied, setEmailCopied] = useState(false);
 
-  // Use the real user's email, or a placeholder if it's not available
   const userEmail = user?.email || "your-unique-address@archie.vault";
 
   const calculateWarrantyExpiration = (purchaseDateStr: string, warrantyPeriodStr: string): string | null => {
@@ -129,7 +128,6 @@ export default function Upload() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-8">
-      {/* The rest of your JSX remains the same */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">
           <Link to={createPageUrl("")}>

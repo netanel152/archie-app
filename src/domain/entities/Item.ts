@@ -1,4 +1,5 @@
 import { db, auth } from '../../infrastructure/integrations/firebase';
+import { dbLogger } from '../../application/services/logger';
 import {
   collection,
   query,
@@ -36,6 +37,7 @@ const getCurrentUserId = () => {
 
 const list = async (sort: string = "created_date"): Promise<ItemData[]> => {
   const userId = getCurrentUserId();
+  dbLogger.info({ userId, sort }, "Fetching item list.");
   const itemsCollectionRef = collection(db, `users/${userId}/items`);
   const sortDirection = sort.startsWith('-') ? 'desc' : 'asc';
   const sortField = sort.startsWith('-') ? sort.substring(1) : sort;
@@ -44,19 +46,21 @@ const list = async (sort: string = "created_date"): Promise<ItemData[]> => {
   return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ItemData));
 };
 
-// FIX: This function now correctly returns the ID of the new document.
 const create = async (data: Partial<Omit<ItemData, 'id'>>): Promise<string> => {
   const userId = getCurrentUserId();
+  dbLogger.info({ userId, data }, "Creating new item.");
   const itemsCollectionRef = collection(db, `users/${userId}/items`);
   const docRef = await addDoc(itemsCollectionRef, {
     ...data,
     created_date: Timestamp.now(),
   });
+  dbLogger.info({ userId, itemId: docRef.id }, "Successfully created new item.");
   return docRef.id; // Return the new document's ID
 };
 
 const update = async (id: string, data: Partial<ItemData>): Promise<void> => {
   const userId = getCurrentUserId();
+  dbLogger.info({ userId, itemId: id, data }, "Updating item.");
   const itemDocRef = doc(db, `users/${userId}/items`, id);
   await updateDoc(itemDocRef, data);
 };
@@ -64,5 +68,5 @@ const update = async (id: string, data: Partial<ItemData>): Promise<void> => {
 export const Item = {
   list,
   create,
-  update,
+  update
 };
