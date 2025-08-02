@@ -7,6 +7,7 @@ import {
   addDoc,
   doc,
   updateDoc,
+  deleteDoc,
   orderBy,
   Timestamp,
 } from 'firebase/firestore';
@@ -65,8 +66,15 @@ const update = async (id: string, data: Partial<ItemData>): Promise<void> => {
   await updateDoc(itemDocRef, data);
 };
 
+const deleteItem = async (id: string): Promise<void> => {
+  const userId = getCurrentUserId();
+  const itemDocRef = doc(db, `users/${userId}/items`, id);
+  await deleteDoc(itemDocRef);
+};
+
 export const Item = {
   list,
   create,
-  update
+  update,
+  delete: deleteItem
 };

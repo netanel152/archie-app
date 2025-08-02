@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Item, type ItemData } from "../../domain/entities/Item";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Trash2 } from "lucide-react";
 import { Badge } from "../components/ui/badge";
 import { Textarea } from "../components/ui/textarea";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -25,6 +26,16 @@ import { createPageUrl } from "../../utils";
 import { format, differenceInDays } from "date-fns";
 import { useTranslation } from "../components/providers/LanguageContext";
 import { he } from "date-fns/locale";
+import {
+  AlertDialog,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel
+} from "../components/ui/alert-dialog";
 
 export default function ItemDetail() {
   const { t, language } = useTranslation();
@@ -35,6 +46,7 @@ export default function ItemDetail() {
   const [saving, setSaving] = useState(false);
   const [marketValue, setMarketValue] = useState<string | null>(null);
   const [isEstimating, setIsEstimating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const dateLocale = language === 'he' ? he : undefined;
 
@@ -150,10 +162,26 @@ export default function ItemDetail() {
     );
   }
 
+  const handleDelete = async () => {
+    if (!item?.id) return;
+    setIsDeleting(true);
+    try {
+      await Item.delete(item.id);
+      // Navigate back to dashboard after deletion
+      window.location.href = createPageUrl("");
+    } catch (error) {
+      console.error("Failed to delete item:", error);
+      // Here you would show a toast notification to the user
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const warrantyStatus = getWarrantyStatus();
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-8">
+
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-6">
           <Link to={createPageUrl("Dashboard")}>
@@ -340,6 +368,31 @@ export default function ItemDetail() {
               )}
             </CardContent>
           </Card>
+                <div className="flex justify-end mb-4">
+        <AlertDialog>
+          <AlertDialogTrigger >
+            <Button variant="destructive">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete Item
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDescription>
+                This action cannot be undone. This will permanently delete this item
+                and remove its data from our servers.
+              </AlertDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Continue"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
         </div>
       </div>
     </div>
