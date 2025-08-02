@@ -1,16 +1,16 @@
 
 import { useState, useEffect } from "react";
-import { Item, type ItemData } from "@/entities/Item";
+import { Item, type ItemData } from "../../domain/entities/Item";
 import { useTranslation } from "../components/providers/LanguageContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../components/ui/select";
 import { Loader2, TrendingUp, PieChart, ShieldAlert } from "lucide-react";
 import {
   BarChart,

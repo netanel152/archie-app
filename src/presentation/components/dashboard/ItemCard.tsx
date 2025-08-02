@@ -1,14 +1,14 @@
 
 
 import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "../ui/card";
+import { Badge } from "../ui/badge";
 import { Calendar, MapPin, ShieldCheck, ShieldAlert, ShieldX, CheckSquare, Square } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { useTranslation } from "../providers/LanguageContext";
 import { he } from "date-fns/locale";
 
-import type { ItemData } from "@/entities/Item";
+import type { ItemData } from "../../../domain/entities/Item";
 
 interface ItemCardProps {
   item: ItemData;
@@ -23,11 +23,11 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
 
   const getWarrantyStatus = () => {
     if (!item.warranty_expiration_date) return null;
-    
+
     const today = new Date();
     const expirationDate = new Date(item.warranty_expiration_date);
     const daysUntilExpiration = differenceInDays(expirationDate, today);
-    
+
     if (daysUntilExpiration < 0) {
       return {
         label: t('warranty_expired'),
@@ -36,7 +36,7 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
       };
     } else if (daysUntilExpiration <= 30) {
       return {
-        label: t('warranty_days_left', {count: daysUntilExpiration}),
+        label: t('warranty_days_left', { count: daysUntilExpiration }),
         color: "text-yellow-600",
         icon: ShieldAlert
       };
@@ -58,10 +58,9 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
     >
-      <Card 
-        className={`bg-white border rounded-lg overflow-hidden transition-all duration-200 ${
-          isSelected ? 'border-blue-500 shadow-md' : 'border-gray-200 hover:shadow-md'
-        }`}
+      <Card
+        className={`bg-white border rounded-lg overflow-hidden transition-all duration-200 ${isSelected ? 'border-blue-500 shadow-md' : 'border-gray-200 hover:shadow-md'
+          }`}
         onClick={() => onClick(item)}
       >
         <CardContent className="p-5">
@@ -82,7 +81,7 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
               </div>
             )}
           </div>
-          
+
           <div className="mt-4 space-y-2 text-sm text-gray-600">
             {item.store_name && (
               <div className="flex items-center gap-2">
@@ -90,11 +89,11 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
                 <span>{item.store_name}</span>
               </div>
             )}
-            
+
             {item.purchase_date && (
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                <span>{format(new Date(item.purchase_date), "MMM d, yyyy", {locale: dateLocale})}</span>
+                <span>{format(new Date(item.purchase_date), "MMM d, yyyy", { locale: dateLocale })}</span>
               </div>
             )}
           </div>
@@ -106,8 +105,8 @@ export default function ItemCard({ item, onClick, selectMode, isSelected }: Item
               </span>
             )}
             {warrantyStatus && (
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`border-0 text-xs ${warrantyStatus.color}`}
               >
                 <warrantyStatus.icon className="w-4 h-4 mr-1" />

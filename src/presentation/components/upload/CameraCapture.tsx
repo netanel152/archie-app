@@ -1,8 +1,8 @@
 
 import { useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Camera, Upload, RotateCcw, Check } from "lucide-react";
 
 interface CameraCaptureProps {
@@ -38,14 +38,14 @@ export default function CameraCapture({ onImageCapture, disabled }: CameraCaptur
 
   const handleUseImage = async () => {
     if (!capturedImage) return;
-    
+
     setIsProcessing(true);
-    
+
     // Convert data URL to blob
     const response = await fetch(capturedImage);
     const blob = await response.blob();
     const file = new File([blob], 'receipt.jpg', { type: 'image/jpeg' });
-    
+
     onImageCapture(file);
     setIsProcessing(false);
   };
@@ -76,7 +76,7 @@ export default function CameraCapture({ onImageCapture, disabled }: CameraCaptur
               onChange={handleFileUpload}
               className="hidden"
             />
-            
+
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
@@ -85,7 +85,7 @@ export default function CameraCapture({ onImageCapture, disabled }: CameraCaptur
                 <span className="bg-white px-2 text-gray-500">or</span>
               </div>
             </div>
-            
+
             <UploadBox
               icon={Upload}
               title="Upload from Library"
@@ -110,7 +110,7 @@ export default function CameraCapture({ onImageCapture, disabled }: CameraCaptur
                 className="w-full max-h-96 object-contain rounded-lg border border-gray-200"
               />
             </div>
-            
+
             <div className="flex gap-3">
               <Button
                 onClick={handleRetake}

@@ -1,14 +1,14 @@
 
 import { useState } from "react";
 
-import { Item } from "@/entities/Item";
-import { UploadFile, InvokeLLM } from "@/integrations/Core";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Item } from "../../domain/entities/Item";
+import { UploadFile, InvokeLLM } from "../../infrastructure/integrations/Core";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Alert, AlertDescription } from "../components/ui/alert";
 import { ArrowLeft, Mail, Copy, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl } from "../../utils";
 import { motion } from "framer-motion";
 import { useTranslation } from "../components/providers/LanguageContext";
 
@@ -172,10 +172,10 @@ export default function Upload() {
             <CardHeader><CardTitle className="text-yellow-800">{t('pro_tips_title')}</CardTitle></CardHeader>
             <CardContent>
               <ul className="text-sm text-yellow-700 space-y-2">
-                <li className="flex items-start"><span className="mr-2">-</span>{t('tip1')}</li>
-                <li className="flex items-start"><span className="mr-2">-</span>{t('tip2')}</li>
-                <li className="flex items-start"><span className="mr-2">-</span>{t('tip3')}</li>
-                <li className="flex items-start"><span className="mr-2">-</span>{t('tip4')}</li>
+                <li className="flex items-start">{t('tip1')}</li>
+                <li className="flex items-start">{t('tip2')}</li>
+                <li className="flex items-start">{t('tip3')}</li>
+                <li className="flex items-start">{t('tip4')}</li>
               </ul>
             </CardContent>
           </Card>

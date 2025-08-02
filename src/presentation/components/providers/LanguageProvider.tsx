@@ -3,7 +3,7 @@ import { useState, useEffect, type ReactNode } from 'react';
 // src/components/providers/LanguageProvider.tsx
 
 
-import { User } from '@/entities/User'; // Corrected import path with alias
+import { User } from "../../../domain/entities/User";
 
 
 // Define the shape of all possible translation keys, based on the 'en' object.

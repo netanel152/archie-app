@@ -6,5 +6,5 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function createPageUrl(page: string) {
-  return `/?page=${page}`;
+  return `/${page.toLowerCase()}`;
 }

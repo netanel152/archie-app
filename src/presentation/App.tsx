@@ -17,10 +17,10 @@ const App = () => {
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/insights" element={<Insights />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="/upload" element={<Upload />} />
             <Route path="/item-detail" element={<ItemDetail />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/insights" element={<Insights />} />
           </Routes>
         </Layout>
       </ThemeProvider>

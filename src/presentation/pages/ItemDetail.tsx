@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
-import { Item, type ItemData } from "@/entities/Item";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InvokeLLM } from "@/integrations/Core";
+import { Item, type ItemData } from "../../domain/entities/Item";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Textarea } from "../components/ui/textarea";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { InvokeLLM } from "../../infrastructure/integrations/Core";
 import {
   ArrowLeft,
   Calendar,
@@ -21,7 +21,7 @@ import {
   Loader2
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
+import { createPageUrl } from "../../utils";
 import { format, differenceInDays } from "date-fns";
 import { useTranslation } from "../components/providers/LanguageContext"; // Updated import path
 import { he } from "date-fns/locale";
@@ -50,7 +50,7 @@ export default function ItemDetail() {
   const loadItem = async (itemId: string) => {
     try {
       const items = await Item.list();
-      const foundItem = items.find(i => i.id === itemId);
+      const foundItem = items.find((i: ItemData) => i.id === itemId);
       if (foundItem) {
         setItem(foundItem);
         setNotes(foundItem.user_notes || "");

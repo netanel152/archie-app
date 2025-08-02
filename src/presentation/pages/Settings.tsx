@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,14 +6,14 @@ import {
   CardTitle,
   CardDescription,
   CardFooter,
-} from "@/components/ui/card";
+} from "../components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "../components/ui/select";
 import { useTranslation } from "../components/providers/LanguageContext";
 import { Languages, Users, Shield, FileDown, Moon, Sun } from "lucide-react";
 import { useTheme } from "../components/providers/ThemeProvider";
