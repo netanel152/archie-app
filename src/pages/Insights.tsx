@@ -1,6 +1,5 @@
 
 import { useState, useEffect } from "react";
-
 import { Item, type ItemData } from "@/entities/Item";
 import { useTranslation } from "../components/providers/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -91,8 +90,8 @@ export default function Insights() {
       return daysLeft >= 0 && daysLeft <= 60;
     })
     .sort((a: ItemData, b: ItemData) =>
-        new Date(a.warranty_expiration_date || 0).getTime() -
-        new Date(b.warranty_expiration_date || 0).getTime()
+      new Date(a.warranty_expiration_date || 0).getTime() -
+      new Date(b.warranty_expiration_date || 0).getTime()
     );
 
   if (loading) {

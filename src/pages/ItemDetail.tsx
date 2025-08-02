@@ -1,6 +1,4 @@
-
 import { useState, useEffect } from "react";
-
 import { Item, type ItemData } from "@/entities/Item";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,14 +6,14 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InvokeLLM } from "@/integrations/Core";
-import { 
-  ArrowLeft, 
-  Calendar, 
-  MapPin, 
-  DollarSign, 
-  Shield, 
-  FileText, 
-  ExternalLink, 
+import {
+  ArrowLeft,
+  Calendar,
+  MapPin,
+  DollarSign,
+  Shield,
+  FileText,
+  ExternalLink,
   Edit3,
   Save,
   X,
@@ -43,7 +41,7 @@ export default function ItemDetail() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const itemId = urlParams.get('id');
-    
+
     if (itemId) {
       loadItem(itemId);
     }
@@ -66,7 +64,7 @@ export default function ItemDetail() {
 
   const saveNotes = async () => {
     if (!item) return;
-    
+
     setSaving(true);
     try {
       await Item.update(item.id, { user_notes: notes });
@@ -108,11 +106,11 @@ export default function ItemDetail() {
 
   const getWarrantyStatus = () => {
     if (!item?.warranty_expiration_date) return null;
-    
+
     const today = new Date();
     const expirationDate = new Date(item.warranty_expiration_date);
     const daysUntilExpiration = differenceInDays(expirationDate, today);
-    
+
     if (daysUntilExpiration < 0) {
       return {
         label: "Warranty Expired",
@@ -183,8 +181,8 @@ export default function ItemDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <InfoRow icon={MapPin} label="Store" value={item.store_name} />
-              <InfoRow icon={Calendar} label="Purchase Date" value={item.purchase_date ? format(new Date(item.purchase_date), "MMMM d, yyyy", {locale: dateLocale}) : null} />
-              <InfoRow icon={DollarSign} label="Price" value={item.total_price ? `${item.currency}${item.total_price}`: null} />
+              <InfoRow icon={Calendar} label="Purchase Date" value={item.purchase_date ? format(new Date(item.purchase_date), "MMMM d, yyyy", { locale: dateLocale }) : null} />
+              <InfoRow icon={DollarSign} label="Price" value={item.total_price ? `${item.currency}${item.total_price}` : null} />
               <InfoRow icon={FileText} label="Category" value={item.category} />
             </CardContent>
           </Card>
@@ -204,11 +202,11 @@ export default function ItemDetail() {
                   </Badge>
                   <span className="text-sm text-gray-600">{warrantyStatus.description}</span>
                 </div>
-                
+
                 {item.warranty_expiration_date && (
-                  <InfoRow icon={Calendar} label="Expires on" value={format(new Date(item.warranty_expiration_date), "MMMM d, yyyy", {locale: dateLocale})} />
+                  <InfoRow icon={Calendar} label="Expires on" value={format(new Date(item.warranty_expiration_date), "MMMM d, yyyy", { locale: dateLocale })} />
                 )}
-                
+
                 {item.warranty_period && (
                   <InfoRow icon={Shield} label="Warranty Period" value={item.warranty_period} />
                 )}
@@ -216,7 +214,7 @@ export default function ItemDetail() {
             </Card>
           )}
 
-           <Card className="bg-white border border-gray-200 rounded-lg">
+          <Card className="bg-white border border-gray-200 rounded-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-gray-800">
                 <TrendingUp className="w-5 h-5" />
@@ -224,21 +222,21 @@ export default function ItemDetail() {
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center">
-                {isEstimating ? (
-                     <div className="flex flex-col items-center justify-center h-24">
-                        <Loader2 className="w-6 h-6 animate-spin text-gray-500"/>
-                        <p className="text-sm text-gray-600 mt-2">{t('estimating')}</p>
-                     </div>
-                ) : marketValue ? (
-                    <div className="flex flex-col items-center justify-center h-24">
-                        <p className="text-sm text-gray-600">{t('estimated_value')}</p>
-                        <p className="text-3xl font-bold text-gray-800">{marketValue}</p>
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center h-24">
-                        <Button onClick={getMarketValue} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">{t('get_market_value')}</Button>
-                    </div>
-                )}
+              {isEstimating ? (
+                <div className="flex flex-col items-center justify-center h-24">
+                  <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
+                  <p className="text-sm text-gray-600 mt-2">{t('estimating')}</p>
+                </div>
+              ) : marketValue ? (
+                <div className="flex flex-col items-center justify-center h-24">
+                  <p className="text-sm text-gray-600">{t('estimated_value')}</p>
+                  <p className="text-3xl font-bold text-gray-800">{marketValue}</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-24">
+                  <Button onClick={getMarketValue} className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">{t('get_market_value')}</Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -325,7 +323,7 @@ export default function ItemDetail() {
                   {t('view_receipt')}
                 </Button>
               )}
-              
+
               {item.manual_url && (
                 <Button
                   variant="outline"
@@ -336,7 +334,7 @@ export default function ItemDetail() {
                   {t('download_manual')}
                 </Button>
               )}
-              
+
               {!item.receipt_image_url && !item.manual_url && (
                 <p className="text-gray-400 italic text-sm text-center py-4">No documents available</p>
               )}

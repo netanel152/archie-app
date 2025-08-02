@@ -27,12 +27,12 @@ export default function Upload() {
     setProcessing(true);
     setError(null);
     setSuccess(false);
-    
+
     let file_url = '';
     try {
       const uploadResult = await UploadFile({ file });
       file_url = uploadResult.file_url;
-      
+
       const prompt = `Analyze the following text from a receipt which may contain Hebrew and English. Extract the data according to the JSON schema. Do not invent data. If a field is not found, return null for it.`;
 
       const extractResult = await InvokeLLM({
@@ -51,9 +51,9 @@ export default function Upload() {
           }
         }
       }) as any;
-        
+
       const extractedData = extractResult;
-      
+
       if (extractedData.warranty_period && extractedData.purchase_date) {
         // ... (warranty calculation logic)
       }
@@ -136,7 +136,7 @@ export default function Upload() {
 
       {processing && (
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-           <Alert className="border-blue-200 bg-blue-50 text-blue-800 flex items-center">
+          <Alert className="border-blue-200 bg-blue-50 text-blue-800 flex items-center">
             <Loader2 className="h-4 w-4 animate-spin" />
             <AlertDescription className="ml-2">
               {t('processing_image')}
