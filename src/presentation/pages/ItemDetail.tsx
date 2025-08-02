@@ -23,7 +23,7 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../../utils";
 import { format, differenceInDays } from "date-fns";
-import { useTranslation } from "../components/providers/LanguageContext"; // Updated import path
+import { useTranslation } from "../components/providers/LanguageContext";
 import { he } from "date-fns/locale";
 
 export default function ItemDetail() {
